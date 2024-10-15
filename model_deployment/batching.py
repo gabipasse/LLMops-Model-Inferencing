@@ -7,7 +7,12 @@ from datasets import load_dataset
 from typing import Generator
 
 
-def generate_text(prompt: str, tokenizer: GPT2TokenizerFast, model: GPT2LMHeadModel, avaible_device: device) -> str:
+def generate_text(
+    prompt: str,
+    tokenizer: GPT2TokenizerFast,
+    model: GPT2LMHeadModel,
+    avaible_device: device,
+) -> str:
     """Generate prediction based on the input.
 
     Parameters
@@ -35,7 +40,12 @@ def generate_text(prompt: str, tokenizer: GPT2TokenizerFast, model: GPT2LMHeadMo
     return outputs_converted[: outputs_converted.find(".") + 1]
 
 
-def batch_generate_texts(prompts: list[str], tokenizer: GPT2TokenizerFast, model: GPT2LMHeadModel, avaible_device: device) -> list[str]:
+def batch_generate_texts(
+    prompts: list[str],
+    tokenizer: GPT2TokenizerFast,
+    model: GPT2LMHeadModel,
+    avaible_device: device,
+) -> list[str]:
     """Generate predictions from inputs, treated as batches.
 
     Parameters
@@ -70,7 +80,9 @@ def batch_generate_texts(prompts: list[str], tokenizer: GPT2TokenizerFast, model
 
 
 # Dynamic Batching
-def batch_generate(tokens: list[Tensor], tokenizer: GPT2TokenizerFast, model: GPT2LMHeadModel) -> list[str]:
+def batch_generate(
+    tokens: list[Tensor], tokenizer: GPT2TokenizerFast, model: GPT2LMHeadModel
+) -> list[str]:
     """Generate predictions from tokenized inputs, treated as batches.
 
     Parameters
@@ -96,7 +108,13 @@ def batch_generate(tokens: list[Tensor], tokenizer: GPT2TokenizerFast, model: GP
     return tokenizer.batch_decode(outputs, skip_special_tokens=True)
 
 
-def dynamic_batching(prompts: list[str], max_tokens: int, tokenizer: GPT2TokenizerFast, model:GPT2LMHeadModel, avaible_device:device) -> Generator[list[str], None, str]:
+def dynamic_batching(
+    prompts: list[str],
+    max_tokens: int,
+    tokenizer: GPT2TokenizerFast,
+    model: GPT2LMHeadModel,
+    avaible_device: device,
+) -> Generator[list[str], None, str]:
     """Applies dynamic batching technique to inference from inputs.
 
     Parameters
@@ -137,8 +155,8 @@ def dynamic_batching(prompts: list[str], max_tokens: int, tokenizer: GPT2Tokeniz
     if current_batch:
         # Check if the batch contains only one element. If so, add a dummy dimension to avoid the ValueError.
         if len(current_batch) == 1:
-          # Duplicate the single element to create a 2D array
-          current_batch = [current_batch[0], current_batch[0]]
+            # Duplicate the single element to create a 2D array
+            current_batch = [current_batch[0], current_batch[0]]
 
         yield batch_generate(current_batch, tokenizer, model)
 
@@ -164,11 +182,19 @@ def main():
     # Defining padding token because, by default, gpt2 based models do not have padding tokens
     tokenizer.pad_token = tokenizer.eos_token
 
-    print(generate_text("Where is Brazil located at?", tokenizer, model, avaible_device))
+    print(
+        generate_text("Where is Brazil located at?", tokenizer, model, avaible_device)
+    )
 
-    print(batch_generate_texts(dataset["instruction"][:100], tokenizer, model, avaible_device))
+    print(
+        batch_generate_texts(
+            dataset["instruction"][:100], tokenizer, model, avaible_device
+        )
+    )
 
-    generator = dynamic_batching(dataset["instruction"][:20], 4, tokenizer, model, avaible_device)
+    generator = dynamic_batching(
+        dataset["instruction"][:20], 4, tokenizer, model, avaible_device
+    )
     try:
         print(next(generator))
     except StopIteration as e:
