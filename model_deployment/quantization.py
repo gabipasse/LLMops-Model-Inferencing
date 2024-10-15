@@ -30,7 +30,9 @@ def track_time() -> typing.Generator[None, None, None]:
     print(f"Execution time: {end - start:.2f}s")
 
 
-def batch_generate(tokens: Tensor, tokenizer: GPT2TokenizerFast, model: GPT2LMHeadModel) -> list[str]:
+def batch_generate(
+    tokens: Tensor, tokenizer: GPT2TokenizerFast, model: GPT2LMHeadModel
+) -> list[str]:
     """Generate predictions from tokenized inputs, treated as batches.
 
     Parameters
@@ -71,7 +73,12 @@ def batch_generate(tokens: Tensor, tokenizer: GPT2TokenizerFast, model: GPT2LMHe
 
 
 # Pegar max size de acordo com maior len de input, para evitar que algum input nao seja encoded e decoded
-def predict_sorted_batches(prompts: list[str], tokenizer: GPT2TokenizerFast, model: GPT2LMHeadModel, avaible_device: device) -> typing.Generator[list[str], None, str]:
+def predict_sorted_batches(
+    prompts: list[str],
+    tokenizer: GPT2TokenizerFast,
+    model: GPT2LMHeadModel,
+    avaible_device: device,
+) -> typing.Generator[list[str], None, str]:
     """Applies sorting and dynamic batching techniques to inference from inputs.
 
     Parameters
@@ -133,7 +140,12 @@ def predict_sorted_batches(prompts: list[str], tokenizer: GPT2TokenizerFast, mod
 
 
 # CTranslate2 batching with quantized model
-def batch_generate_using_ctrans(prompts: list[str], tokenizer: GPT2TokenizerFast, generator_model: ctranslate2._ext.Generator, max_batch_size: int=4) -> list[str]:
+def batch_generate_using_ctrans(
+    prompts: list[str],
+    tokenizer: GPT2TokenizerFast,
+    generator_model: ctranslate2._ext.Generator,
+    max_batch_size: int = 4,
+) -> list[str]:
     """Use quantized models to inference from inputs.
 
     Parameters
@@ -163,18 +175,22 @@ def batch_generate_using_ctrans(prompts: list[str], tokenizer: GPT2TokenizerFast
         ]
         max_batch_size = max(len(input_tokens) for input_tokens in inputs)
 
-        results: list[ctranslate2._ext.GenerationResult] = generator_model.generate_batch(
-            inputs,
-            max_length=128,
-            max_batch_size=max_batch_size,
-            beam_size=2,
-            repetition_penalty=1.5,
+        results: list[ctranslate2._ext.GenerationResult] = (
+            generator_model.generate_batch(
+                inputs,
+                max_length=128,
+                max_batch_size=max_batch_size,
+                beam_size=2,
+                repetition_penalty=1.5,
+            )
         )
 
         # Results contains 3 lists of lists: sequence_ids, scores, attention_weights
         # Change here: Access the generated IDs directly from the result object
         results_ids = [res.sequences_ids[0] for res in results]
-        all_results.extend(tokenizer.batch_decode(results_ids, skip_special_tokens=True))
+        all_results.extend(
+            tokenizer.batch_decode(results_ids, skip_special_tokens=True)
+        )
 
     return all_results
 
@@ -204,10 +220,14 @@ def main():
         output_dir="models/gpt-instruct-quant", quantization="float16", force=True
     )
 
-    generator_model = ctranslate2._ext.Generator(output_path, device=avaible_device.type)
+    generator_model = ctranslate2._ext.Generator(
+        output_path, device=avaible_device.type
+    )
 
     with track_time():
-        generator_sorted_batches = predict_sorted_batches(example_prompts_4_sorting_prediction, tokenizer, model, avaible_device)
+        generator_sorted_batches = predict_sorted_batches(
+            example_prompts_4_sorting_prediction, tokenizer, model, avaible_device
+        )
         try:
             for batch_prediction in tqdm(generator_sorted_batches):
                 print("Amount of inputs in this batch", len(batch_prediction))
@@ -215,7 +235,9 @@ def main():
             print(f"Generator returned: {e.value}")
 
     with track_time():
-        generator_ctrans_method = batch_generate_using_ctrans(example_prompts_4_sorting_prediction, tokenizer, generator_model)
+        generator_ctrans_method = batch_generate_using_ctrans(
+            example_prompts_4_sorting_prediction, tokenizer, generator_model
+        )
         try:
             for batch_prediction in tqdm(generator_ctrans_method):
                 print("Amount of inputs in this batch", len(batch_prediction))
