@@ -39,7 +39,7 @@ Sorting batching is a batching inference method in which the inputs are not toke
 
 By combining the sorting and dynamic batching techniques, the inference process is further optimized. Merging these two techniques allows each batch to be defined according to the length of the combination of inputs passed as a batch. At the same time, by defining the outputs of tokenization without the need for padding, the size of each input is known. This approach also simplifies the understanding of the amount of computational resources that will be required for the inference of a given number of inputs x.
 
-## Quantização
+## Quantization
 
 Model quantization is the reduction of precision in the results of operations performed during the training and/or inference processes. As highlighted regarding the importance of seeking the most optimal trade-off between accuracy and other requirements of language model-based applications, this technique can affect the model's accuracy but can, in turn, reduce latency and the computational resources required. The ctranslate2 library implements model quantization and also utilizes the combination of dynamic and sorting batching techniques by default
 
