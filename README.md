@@ -11,6 +11,20 @@ Going beyond a model's accuracy, real-world applications based on language model
 
 As always, the first step in deciding whether to use LLM/SLM-based solutions is to assess the availability of less costly alternatives that meet the requirements expressed by clients and/or the context. If there are solutions based on classic machine learning models that are less expensive than those required for the same need with LLMs/SLMs, classic models should be preferred.
 
+## Setting Up Virtual Environment for the Project
+
+1. **Create and Activate Environment**  
+   Create and activate a Conda or Virtualenv environment.
+
+2. **Install Dependencies**
+
+   - First, visit [PyTorch's Get Started page](https://pytorch.org/get-started/locally/) to select and install the appropriate CUDA or CPU version for your system.
+
+   - Next, install the necessary dependencies and sub-dependencies listed in the `requirements.txt` file by running:
+     ```bash
+     pip install -r requirements.txt
+     ```
+     
 ## MLOps Best Pratices
 The different inference techniques have been divided into files to modularize the code and facilitate the understanding of the execution flow for each method. Defined and used functions have docstrings to simplify debugging and code refactoring. Type hints are used for the same purpose. The latter is extremely important because some objects are instantiated from classes with the same name but from different modules; this is the case with "Generator," which is present in both the "ctranslate" and "typing" modules.
 
